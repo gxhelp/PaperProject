@@ -21,7 +21,7 @@ nTx = 2
 nRx = 2
 SNR_db = 5
 
-traing_epochs = 11 #训练的代数
+traing_epochs = 1001 #训练的代数
 l_rate = 0.01
 total_batch = 20 # 每代的batch数
 
@@ -145,7 +145,7 @@ with tf.Session() as sess:
         activation_func = "tanh"
     else:
         activation_func = "relu"
-    fig_name = 'MIMO-OFDM-IM_Quasi-static_20190903({},{},{}) SNR_db{} EbNodB_range{} Q={} {} {} {}'\
+    fig_name = 'MIMO-OFDM-IM_Quasi-static_({},{},{}) SNR_db{} EbNodB_range{} Q={} {} {} {}'\
         .format(N,K,M,SNR_db,EbNodB_range,n_hidden_1,activation_func,traing_epochs-1,time_str)
     data_save_write(ber, fig_name)
 
