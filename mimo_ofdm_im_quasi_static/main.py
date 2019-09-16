@@ -84,6 +84,7 @@ with tf.Session() as sess:
                 input_samples.append(Yg_Rx1_features)
 
             batch_x = np.asarray(input_samples)#预处理后的输出值,训练数据集
+            batch_x = batch_x[:,:,0]
             batch_y = np.asarray(input_labels)#输入比特作为样本，训练数据集
             _, cs = sess.run([optimizer, cost], feed_dict={X: batch_x,
                                                            Y: batch_y,
@@ -119,6 +120,7 @@ with tf.Session() as sess:
             input_samples_test.append(Yg_Rx1_features)  # y_
 
         batch_x = np.asarray(input_samples_test)  #把输出信号signal_output作为测试集的样本
+        batch_x = batch_x[:, :, 0]
         batch_y = np.asarray(input_labels_test)   #把输入比特信号bits测试集的标签
         mean_error = tf.reduce_mean(abs(y_pred - batch_y))  # mean_error.eval({X:batch_x}),
         print("Testing...")
