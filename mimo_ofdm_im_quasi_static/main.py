@@ -27,7 +27,7 @@ total_batch = 20 # 每代的batch数
 
 n_hidden_1 = 128   # 小用Tanh大用ReLu
 #输入尺寸
-n_input = N
+n_input = 4*N #实部、虚部、能量、激活方式
 n_output = N #两个发射天线，每个天线中子组的子载波数N=4
 #打印设置
 display_step = 5
@@ -78,10 +78,10 @@ with tf.Session() as sess:
             input_samples = []
             input_labels = []
             for index_k in range(0, batch_size):
-                bits, bits_Tx1, bits_Tx2, Hg, h_con, Yg, Yg_Rx1, Yg_Rx2 = mimo_ofdm_im_train(N, K, M, SNR_db)
-                Y_H_features,Yg_Rx1_bar = feature_genator(N,Hg,Yg,Yg_Rx1)
+                bits, bits_Tx1, bits_Tx2, Hg, h_con, Yg, Yg_Rx1, Yg_Rx2, power = mimo_ofdm_im_train(N, K, M, SNR_db)
+                Yg_Rx1_features,Yg_Rx1_bar = feature_genator(N,Hg,Yg,Yg_Rx1,power)
                 input_labels.append(bits_Tx1)
-                input_samples.append(Yg_Rx1_bar)
+                input_samples.append(Yg_Rx1_features)
 
             batch_x = np.asarray(input_samples)#预处理后的输出值,训练数据集
             batch_y = np.asarray(input_labels)#输入比特作为样本，训练数据集
@@ -113,10 +113,10 @@ with tf.Session() as sess:
             test_number = 5000000
 
         for i_test_number in range(0, test_number):
-            bits, bits_Tx1, bits_Tx2, Hg, h_con, Yg, Yg_Rx1, Yg_Rx2 = mimo_ofdm_im_test(N, K, M,EbNodB_range[n])
-            Y_H_features,Yg_Rx1_bar = feature_genator(N,Hg,Yg,Yg_Rx1)
+            bits, bits_Tx1, bits_Tx2, Hg, h_con, Yg, Yg_Rx1, Yg_Rx2, power = mimo_ofdm_im_test(N, K, M,EbNodB_range[n])
+            Yg_Rx1_features,Yg_Rx1_bar = feature_genator(N,Hg,Yg,Yg_Rx1,power)
             input_labels_test.append(bits_Tx1)  # all_bits
-            input_samples_test.append(Yg_Rx1_bar)  # y_
+            input_samples_test.append(Yg_Rx1_features)  # y_
 
         batch_x = np.asarray(input_samples_test)  #把输出信号signal_output作为测试集的样本
         batch_y = np.asarray(input_labels_test)   #把输入比特信号bits测试集的标签

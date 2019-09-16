@@ -83,14 +83,9 @@ def mimo_ofdm_im_train(N,K,M,SNRdb):
     bits_Tx1 = bits2[0,:]#发射天线1的x比特
     bits_Tx2 = bits2[1, :]
 
-    Yg = Yg.reshape(-1, 1)
-    h_inv = np.linalg.inv(Hg)
-    Yg_bar = h_inv.dot(Yg)
+    return bits,bits_Tx1,bits_Tx2,Hg,h_con,Yg,Yg_Rx1,Yg_Rx2,power
 
-    return bits,bits_Tx1,bits_Tx2,Hg,h_con,Yg,Yg_Rx1,Yg_Rx2
-
-
-def feature_genator(N,Hg,Yg,Yg_Rx1):
+def feature_genator(N,Hg,Yg,Yg_Rx1,power):
     import numpy as np
     Yg = Yg.reshape(-1, 1)
     h_inv = np.linalg.inv(Hg)
@@ -103,7 +98,18 @@ def feature_genator(N,Hg,Yg,Yg_Rx1):
     y_con = np.concatenate((np.real(Yg_Rx1_bar), np.imag(Yg_Rx1_bar)))  #Y的实部和虚部
     y_m = np.absolute((Yg_Rx1)) #y_m能量值
     Yg_Rx1_features = np.concatenate((y_con, y_m))
+    #GD能量检测
+    y_m_GD = y_m/power
+    y_m_activate_mode = np.zeros([len(y_m_GD),1])
+    for i_gd in range(len(y_m_GD)):
+        if y_m_GD[i_gd] <= 0.5:
+            y_m_activate_mode[i_gd] = 0
+        else:
+            y_m_activate_mode[i_gd] = 1
 
+    y_m_activate_mode = y_m_activate_mode.reshape(1, -1)
+    y_m_activate_mode = y_m_activate_mode[0]
+    Yg_Rx1_features = np.concatenate((Yg_Rx1_features, y_m_activate_mode))
     Yg_Rx1_features = Yg_Rx1_features.reshape(-1, 1)
 
     return Yg_Rx1_features,Yg_Rx1_bar
@@ -129,9 +135,11 @@ def mimo_ofdm_im_test(N,K,M,SNRdb_range):
     bits = np.random.binomial(n=1, p=0.5, size=(nTx_q,))
     bits2 = bits.reshape(nTx,q)
     QAM,qam_factor = mqam(M)
-
-    # print(64,QAM,qam_factor)
-    # power = np.sqrt(N / K / qam_factor)  # power allocation factor
+    if M==8 or M==2:
+        qam_factor = 1
+    else:
+        qam_factor = (2 / 3) * (M - 1)
+    power = np.sqrt(N / K / qam_factor)  # power allocation factor
 
     # index patterns for N=4 and K=1,2,3 only
     if K == 1:
@@ -155,7 +163,7 @@ def mimo_ofdm_im_test(N,K,M,SNRdb_range):
             bit_sy_i = bit_K[i, :]
             sy_de[i] = bit_sy_i.dot(2 ** np.arange(bit_sy_i.size)[::-1])
             sym[i] = QAM[sy_de[i]]
-        tx_sym[i_nTx,idx[id_de, :]] = sym
+        tx_sym[i_nTx,idx[id_de, :]] = sym*power
 
     tx_subblock = tx_sym.reshape(-1, 1)
 
@@ -182,7 +190,7 @@ def mimo_ofdm_im_test(N,K,M,SNRdb_range):
     bits_Tx1 = bits2[0,:]#发射天线1的x比特
     bits_Tx2 = bits2[1, :]
 
-    return bits,bits_Tx1,bits_Tx2,Hg,h_con,Yg,Yg_Rx1,Yg_Rx2
+    return bits,bits_Tx1,bits_Tx2,Hg,h_con,Yg,Yg_Rx1,Yg_Rx2,power
 
 def frange(x, y, jump):
     while x < y:
