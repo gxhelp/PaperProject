@@ -97,7 +97,7 @@ def feature_genator(N,Hg,Yg,Yg_Rx1,power):
     #提取特征值
     y_con = np.concatenate((np.real(Yg_Rx1_bar), np.imag(Yg_Rx1_bar)))  #Y的实部和虚部
     y_m = np.absolute((Yg_Rx1)) #y_m能量值
-    Yg_Rx1_features = np.concatenate((y_con, y_m))
+    # Yg_Rx1_features = np.concatenate((y_con, y_m))
     #GD能量检测
     y_m_GD = y_m/power
     y_m_activate_mode = np.zeros([len(y_m_GD),1])
@@ -109,7 +109,7 @@ def feature_genator(N,Hg,Yg,Yg_Rx1,power):
 
     y_m_activate_mode = y_m_activate_mode.reshape(1, -1)
     y_m_activate_mode = y_m_activate_mode[0]
-    Yg_Rx1_features = np.concatenate((Yg_Rx1_features, y_m_activate_mode))
+    Yg_Rx1_features = np.concatenate((y_con, y_m_activate_mode))
     Yg_Rx1_features = Yg_Rx1_features.reshape(-1, 1)
 
     return Yg_Rx1_features,Yg_Rx1_bar

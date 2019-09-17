@@ -27,7 +27,7 @@ total_batch = 20 # 每代的batch数
 
 n_hidden_1 = 128   # 小用Tanh大用ReLu
 #输入尺寸
-n_input = 4*N #实部、虚部、能量、激活方式
+n_input = 3*N #实部、虚部、激活方式(本次修改删除y_m作为feature)
 n_output = N #两个发射天线，每个天线中子组的子载波数N=4
 #打印设置
 display_step = 5
