@@ -100,16 +100,27 @@ with tf.Session() as sess:
     for n in range(0, len(EbNodB_range)):
         input_samples_test = []
         input_labels_test = []
-        if n<=10:
+        # if n<=10:
+        #     test_number = 100000
+        # elif n > 10 and n<15: #低信噪高的时候，多跑一些点
+        #     test_number = 1000000
+        # elif n >= 15 and n<20:
+        #     test_number = 1500000
+        # elif n >= 20 and n<25:
+        #     test_number = 2000000
+        # elif n >= 25 and n < 35:
+        #     test_number = 3000000
+        # else:
+        #     test_number = 5000000
+
+        if n<=5:
             test_number = 100000
-        elif n > 10 and n<15: #低信噪高的时候，多跑一些点
+        elif n == 6: #低信噪高的时候，多跑一些点
             test_number = 1000000
-        elif n >= 15 and n<20:
+        elif n == 7:
             test_number = 1500000
-        elif n >= 20 and n<25:
+        elif n >7 and n<=10:
             test_number = 2000000
-        elif n >= 25 and n < 35:
-            test_number = 3000000
         else:
             test_number = 5000000
 
