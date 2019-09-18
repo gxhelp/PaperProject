@@ -94,7 +94,7 @@ with tf.Session() as sess:
                   "{:.9f}".format(avg_cost))
     print("Training has been done!")
     # Testing
-    EbNodB_range = list(frange(0,11, 1))
+    EbNodB_range = list(frange(0,31, 5))
     ber = [None] * len(EbNodB_range)
     for n in range(0, len(EbNodB_range)):
         input_samples_test = []
