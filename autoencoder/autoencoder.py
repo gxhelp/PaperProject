@@ -424,18 +424,22 @@ class AutoEncoder(object):
             
         return channel_h
 
-    def pass_channel(self,channel_h,symbols_for_Tx):
+    def pass_channel(self,channel_h,symbols_for_Tx,SNRdb):
         "因为要传输N个子载波"
         symbols_for_Rx = np.zeros((self.nRx,self.N),dtype=complex)
+        SNR = 10 ** (SNRdb / 10)
+        sigma = np.sqrt(1 / SNR)
+        Wg = 1 / np.sqrt(2) * (np.random.randn(self.nRx,self.N) + 1j * np.random.randn(self.nRx,self.N)) #noise
         for i in range(self.N):
             symbols_for_Rx[:,i] = np.dot(channel_h,symbols_for_Tx[:,i])
-        return symbols_for_Rx #每一行代表1个接收天线接收到的符号，每一列代表每个子载波
+        signals_for_Rx = symbols_for_Rx + sigma*Wg
+        return signals_for_Rx #每一行代表1个接收天线接收到的符号，每一列代表每个子载波
 
-    def equalizer(self,symbols_for_Rx,channel_h): #均衡
+    def equalizer(self,signals_for_Rx,channel_h): #均衡
         Yg_bar = np.zeros((self.nRx,self.N),dtype=complex)
         h_inv = np.linalg.inv(channel_h)
         for i in range(self.N):
-            Yg = symbols_for_Rx[:,i].reshape(-1, 1)
+            Yg = signals_for_Rx[:,i].reshape(-1, 1)
             Yg_bar[:,i] = h_inv.dot(Yg)[:,0] #矩阵乘法之后的尺寸为(2,1)不能放进Yg_bar[:,i],故取出第一列后赋值
         return Yg_bar #每一行代表1个接收天线接收到的符号，每一列代表每个子载波
 
@@ -454,7 +458,7 @@ print(source_bits,'\n',mimo_symbols)
 # H = ae.channel_gen(channel_type=0)
 H = ae.channel_gen()
 print(H)
-symbols_for_Rx = ae.pass_channel(H,mimo_symbols)
+symbols_for_Rx = ae.pass_channel(H,mimo_symbols,10) #假设SNR为10dB
 print(symbols_for_Rx)
 Yg_bar = ae.equalizer(symbols_for_Rx,H)#均衡
 print(Yg_bar)
